@@ -1,3 +1,6 @@
+# DISCLAIMER: This tool is for educational purposes only. The author is not responsible for any misuse.
+# 声明：本工具仅供教育用途，作者不对任何滥用行为负责。
+
 import os
 import sys
 from openai import OpenAI
