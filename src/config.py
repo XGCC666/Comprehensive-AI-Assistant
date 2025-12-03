@@ -1,23 +1,18 @@
 import os
-import sys
 from dotenv import load_dotenv
-
-# 自动加载
-load_dotenv()
 
 def load_config():
     """
-    加载并返回配置，如果缺配置直接报错退出
+    加载配置。如果 .env 不存在或缺少 Key，不会报错退出，而是返回空字符串。
+    让 app.py 去判断是否需要用户输入。
     """
-    api_key = os.getenv("MY_API_KEY")
-    base_url = os.getenv("MY_API_URL")
-    model_name = os.getenv("MY_MODEL_NAME")
+    load_dotenv(override=True) # override=True 确保重新加载文件时能读到最新值
+
+    api_key = os.getenv("MY_API_KEY", "")
+    base_url = os.getenv("MY_API_URL", "")
+    model_name = os.getenv("MY_MODEL_NAME", "gpt-3.5-turbo")
     
-    if not api_key or not base_url:
-        print("❌ 严重错误：未在 .env 文件中找到 API 配置！")
-        print("请检查 MY_API_KEY 和 MY_API_URL 是否填写正确。")
-        sys.exit(1) # 直接终止程序
-        
+    # 返回字典，不再做 sys.exit() 检查
     return {
         "api_key": api_key,
         "base_url": base_url,
