@@ -1,9 +1,11 @@
 # 🤖 Comprehensive AI Assistant (多角色 AI 助手)
 
+> [!WARNING]
+> **注意**：目前只适用于一次性问答，还没进行上下文记忆适配。
+
 这是一个基于 Python 的轻量级 AI 助手框架。它允许你通过简单的 Markdown 文件定义不同的 AI 角色（如翻译官、代码专家、提示词架构师等），并在运行时动态切换。
 
 支持所有兼容 OpenAI 协议的接口（如 DeepSeek, Moonshot, LocalAI 等）。
-🛑 **注意：目前只适用于一次性问答，还没进行上下文记忆适配**
 
 ## ✨ 功能特点
 
