@@ -1,118 +1,66 @@
-# DISCLAIMER: This tool is for educational purposes only. The author is not responsible for any misuse.
-# 声明：本工具仅供教育用途，作者不对任何滥用行为负责。
+# main.py
 
-import os
-import sys
-from openai import OpenAI
-from dotenv import load_dotenv
-
-# 1. 加载配置
-load_dotenv()
-API_KEY = os.getenv("MY_API_KEY")
-BASE_URL = os.getenv("MY_API_URL")
-MODEL_NAME = os.getenv("MY_MODEL_NAME")
-PROMPT_DIR = "prompts"
-
-# ==================== 升级版：加载函数 ====================
-def load_prompt_data(filename):
-    """
-    读取文件，并解析出【开场白】和【系统提示词】
-    返回: (system_prompt, greeting_message)
-    """
-    path = os.path.join(PROMPT_DIR, filename)
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            
-        if not lines:
-            return None, None
-
-        greeting = f"✅ 已加载角色: {filename}" # 默认开场白
-        content = "".join(lines) # 默认内容是全文
-
-        # 核心逻辑：检查第一行是不是以 ## Greeting: 开头
-        first_line = lines[0].strip()
-        if first_line.startswith("## Greeting:"):
-            # 1. 提取冒号后面的文字作为开场白
-            greeting = first_line.replace("## Greeting:", "").strip()
-            # 2. 真正给 AI 的 Prompt 里，去掉这一行（从第二行开始拼接）
-            content = "".join(lines[1:])
-            
-        return content, greeting
-
-    except Exception as e:
-        print(f"读取文件出错: {e}")
-        return None, None
-# ========================================================
-
-def get_available_prompts():
-    if not os.path.exists(PROMPT_DIR):
-        os.makedirs(PROMPT_DIR)
-    return [f for f in os.listdir(PROMPT_DIR) if f.endswith('.md')]
+# 从 src 包里导入我们写好的模块
+from src.config import load_config
+from src.file_loader import get_prompt_list, load_prompt_by_filename
+from src.ai_engine import AIEngine
 
 def main():
-    if not API_KEY or not BASE_URL:
-        print("❌ 错误：请检查 .env 配置")
-        return
-
-    client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+    # 1. 初始化配置
+    config = load_config()
+    engine = AIEngine(config["api_key"], config["base_url"], config["model"])
 
     print("="*50)
-    print(f" 🎭 AI 角色扮演中心 (模型: {MODEL_NAME})")
+    print(f" 🚀 AI 模块化助手 (模型: {config['model']})")
     print("="*50)
 
-    # 1. 选择角色
-    prompts = get_available_prompts()
+    # 2. 获取并选择 Prompt
+    prompts = get_prompt_list()
     if not prompts:
-        print(f"⚠️  请在 {PROMPT_DIR} 文件夹里创建 .md 文件")
+        print("⚠️  prompts 文件夹为空！")
         return
 
     print("\n请选择一位 AI 助手：")
-    for index, filename in enumerate(prompts):
-        print(f" [{index + 1}] {filename}")
+    for i, p in enumerate(prompts):
+        print(f" [{i+1}] {p}")
 
     try:
         choice = int(input("\n👉 请输入序号: ").strip()) - 1
-        if 0 <= choice < len(prompts):
-            selected_file = prompts[choice]
-            
-            # === 调用新函数，同时拿到 prompt 和 开场白 ===
-            system_content, greeting_msg = load_prompt_data(selected_file)
-            
-            if not system_content: return
-            
-            # === 打印炫酷的自定义开场白 ===
-            print("\n" + "*" * 50)
-            print(f"🤖 {greeting_msg}") # 这里会显示你在 md 文件里写的那句话
-            print("*" * 50 + "\n")
-            
-        else:
+        if not (0 <= choice < len(prompts)):
             print("❌ 序号无效")
             return
+        
+        # 加载文件
+        filename = prompts[choice]
+        system_content, greeting = load_prompt_by_filename(filename)
+        if not system_content: return
+
+        # 显示开场白
+        print(f"\n🤖 {greeting}\n")
+
     except ValueError:
         print("❌ 输入错误")
         return
 
-    # 2. 用户输入
-    user_input = input("🗣️  请对它说 (直接回车退出): ").strip()
-    if not user_input: return
+    # 3. 用户输入
+    user_input = input("🗣️  请输入（无输入直接回车可结束）: ").strip()
+    if not user_input: 
+        print("程序结束，感谢使用！再见！👋")
+        return
 
-    print("\n⏳ 思考中...\n")
+    print("\n" + "-"*20 + " 思考中（Ctrl+C可停止进程） " + "-"*20 + "\n")
 
-    # 3. 发送请求
+    # 4. 调用 AI 引擎并流式打印
     try:
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": user_input},
-            ],
-            temperature=0.7,
-        )
-        print("-" * 20 + " 回答 " + "-" * 20)
-        print(response.choices[0].message.content)
-        print("-" * 50)
-
+        stream = engine.chat_stream(system_content, user_input)
+        
+        # 负责打印显示的逻辑放在 main 里
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                print(chunk.choices[0].delta.content, end="", flush=True)
+        
+        print("\n\n" + "-"*50)
+        
     except Exception as e:
         print(f"❌ 出错: {e}")
 
