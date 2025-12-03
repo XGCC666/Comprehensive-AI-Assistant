@@ -1,4 +1,3 @@
-````markdown
 # 🤖 Comprehensive AI Assistant (多角色 AI 助手)
 
 这是一个基于 Python 的轻量级 AI 助手框架。它允许你通过简单的 Markdown 文件定义不同的 AI 角色（如翻译官、代码专家、提示词架构师等），并在运行时动态切换。
@@ -23,7 +22,7 @@
 pip install openai python-dotenv
 ````
 
-### 3\. 配置密钥 (.env)
+### 🔑 配置密钥 (.env)
 
 由于安全原因，本项目不包含配置文件。请在项目根目录下新建一个名为 `.env` 的文件，并填入以下内容：
 
@@ -33,7 +32,7 @@ MY_API_URL=[https://api.deepseek.com](https://api.deepseek.com)  # 或其他接�
 MY_MODEL_NAME=deepseek-chat          # 你想使用的模型名称
 ```
 
-### 4\. 运行程序
+### 🖥️ 运行程序
 
 ```bash
 python main.py
@@ -69,9 +68,3 @@ python main.py
     ├── architect.md
     └── ...
 ```
-
-````
-
-
-**推荐你用方法 A**，因为你刚才刚上传完，网页端操作最直观！去试试看？
-````
