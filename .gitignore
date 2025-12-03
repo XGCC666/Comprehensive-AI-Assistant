@@ -8,3 +8,9 @@ venv/
 # 忽略 Python 编译产生的缓存文件
 __pycache__/
 *.pyc
+
+# 忽略日志文件
+*.log 
+
+#忽略本地历史记录文件
+*.history
