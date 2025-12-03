@@ -1,20 +1,137 @@
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+LEX INVICTUS "IRON DOME" SOURCE AVAILABLE LICENSE
+Version 4.1 (Ultimate Edition)
 
-By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License ("Public License").
+Copyright (c) 2024-2025 XGCC666. All rights reserved.
 
------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+IMPORTANT: PLEASE READ THIS LICENSE CAREFULLY BEFORE DOWNLOADING, INSTALLING,
+COPYING, OR USING THE SOFTWARE.
 
-【简明摘要 / Summary】
+BY DOWNLOADING, CLONING, OR USING THIS SOFTWARE, YOU (THE "LICENSEE") AGREE TO BE
+BOUND BY THE TERMS OF THIS LICENSE. IF YOU DO NOT AGREE TO THE TERMS OF THIS
+LICENSE, DO NOT DOWNLOADING, INSTALL, COPY, OR USE THE SOFTWARE.
+----------------------------------------------------------------------------------
 
-1. You are free to:
-   - Share: Copy and redistribute the material in any medium or format.
-   - Adapt: Remix, transform, and build upon the material.
+1. DEFINITIONS
 
-2. Under the following terms:
-   - Attribution (署名): You must give appropriate credit, provide a link to the license, and indicate if changes were made.
-   - NonCommercial (非商业性使用): You may NOT use the material for commercial purposes.
-   - ShareAlike (相同方式共享): If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+   1.1 "Licensor" means the original author(s), copyright holder(s), and maintainers
+       of this Software.
+   1.2 "Software" means the source code, object code, binary files, documentation,
+       user interfaces, and any associated materials provided in this repository.
+   1.3 "Derivative Works" means any work, whether in source or object form, that is
+       based on (or derived from) the Software and for which the editorial revisions,
+       annotations, elaborations, or other modifications represent, as a whole, an
+       original work of authorship.
+   1.4 "Non-Commercial Use" means use for personal learning, academic research, or
+       security testing purposes that does not involve the exchange of money,
+       cryptocurrency, or value, and does not directly or indirectly generate revenue.
 
------------------------------------------------------------------------
+2. GRANT OF LICENSE
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   Subject to the terms and conditions of this License, Licensor hereby grants
+   Licensee a personal, non-exclusive, non-transferable, non-sublicensable, and
+   revocable license to:
+
+   (a) Access, view, and read the Software source code.
+   (b) Install and execute the Software on local devices solely for Non-Commercial Use.
+   (c) Modify the Software solely for personal research and customization purposes,
+       provided that such modifications are not distributed to third parties.
+
+3. RESTRICTIONS AND PROHIBITIONS
+
+   The rights granted in Section 2 are subject to the following STRICT restrictions.
+   Violation of any restriction below constitutes a material breach of this License:
+
+   3.1 NO COMMERCIAL USE (STRICTLY ENFORCED)
+       Licensee shall NOT use the Software, or any Derivative Works, for any
+       commercial purpose, including but not limited to:
+       (a) Selling, renting, leasing, or licensing access to the Software.
+       (b) Incorporating the Software into a paid product or service (SaaS).
+       (c) Using the Software to support internal business operations of a commercial entity.
+       (d) Using the Software for indirect revenue generation (e.g., ad-supported services).
+
+   3.2 NO COMPETING SERVICES
+       Licensee shall NOT use the Software to build, develop, or promote a product
+       or service that competes with the Software, including but not limited to
+       API wrappers, prompt engineering platforms, or AI assistant frameworks.
+
+   3.3 COMPLIANCE WITH LAWS & NATIONAL SECURITY (THE "RED LINE")
+       Licensee represents and warrants that their use of the Software shall comply
+       strictly with the laws of the People's Republic of China (PRC) and the laws
+       of the jurisdiction in which the Licensee is located.
+       Licensee shall NOT use the Software to:
+       (a) Generate content that endangers national security, divulges state secrets,
+           subverts state power, or undermines national unity.
+       (b) Promote terrorism, extremism, ethnic hatred, or discrimination.
+       (c) Violate the Cyber Security Law, Data Security Law, or Export Control Law of the PRC.
+
+   3.4 PROHIBITION ON ILLEGAL ACTIVITIES
+       Licensee shall NOT use the Software to:
+       (a) Develop malware, ransomware, phishing scripts, or DDoS attack tools.
+       (b) Generate Child Sexual Abuse Material (CSAM), pornography, or violent content.
+       (c) Infringe upon the privacy, intellectual property, or other rights of third parties.
+       (d) Conduct "Doxing" or illegal data collection.
+
+   3.5 API KEY SECURITY
+       Licensee is solely responsible for the security of their API Keys. Licensor
+       shall not be liable for any financial loss or account suspension resulting
+       from Licensee's failure to secure their credentials (e.g., accidental upload
+       to public repositories).
+
+4. INTELLECTUAL PROPERTY RIGHTS
+
+   This License is not a sale. Title, ownership rights, and intellectual property
+   rights in and to the Software remain with the Licensor. The Software is protected
+   by copyright laws and international treaties.
+
+5. DISCLAIMER OF WARRANTY (AS-IS)
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+   THE LICENSOR DOES NOT WARRANT THAT THE SOFTWARE WILL BE ERROR-FREE, SECURE, OR
+   FREE FROM VIRUSES. THE LICENSOR MAKES NO REPRESENTATION REGARDING THE ACCURACY
+   OR RELIABILITY OF ANY CONTENT GENERATED BY THE SOFTWARE VIA THIRD-PARTY AI MODELS.
+   ANY RELIANCE ON SUCH CONTENT IS AT LICENSEE'S OWN RISK.
+
+6. LIMITATION OF LIABILITY
+
+   TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+   LICENSOR BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL
+   DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF
+   BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY
+   OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE
+   SOFTWARE, EVEN IF THE LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+7. INDEMNIFICATION
+
+   Licensee agrees to indemnify, defend, and hold harmless the Licensor and its
+   affiliates from and against any and all claims, liabilities, damages, losses,
+   costs, expenses, or fees (including reasonable attorneys' fees) that such parties
+   may incur as a result of or arising from:
+   (a) Licensee's use or misuse of the Software;
+   (b) Licensee's violation of this License;
+   (c) Licensee's violation of any rights of another party; or
+   (d) Any content generated by Licensee using the Software that violates applicable law.
+
+8. GOVERNING LAW AND JURISDICTION
+
+   This License shall be governed by and construed in accordance with the laws of
+   the People's Republic of China, without regard to its conflict of law principles.
+   Any dispute arising out of or in connection with this License shall be submitted
+   to the competent court in the place where the Licensor is located.
+
+9. SEVERABILITY
+
+   If any provision of this License is held to be invalid, illegal, or unenforceable,
+   the remaining provisions of this License shall remain in full force and effect.
+
+10. ENTIRE AGREEMENT
+
+    This License constitutes the entire agreement between Licensee and Licensor
+    regarding the use of the Software and supersedes all prior or contemporaneous
+    understandings regarding such subject matter.
+
+----------------------------------------------------------------------------------
+END OF LICENSE
