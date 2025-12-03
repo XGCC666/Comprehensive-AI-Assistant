@@ -7,12 +7,15 @@
     
     <link rel="stylesheet" href="/static/css/style.css">
     
+    <!-- 引入 Markdown 渲染库 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 引入代码高亮样式和库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
 
+    <!-- 侧边栏 -->
     <div class="sidebar">
         <div class="btn-new" onclick="openRoleModal()" title="发起新对话">
             <svg class="icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -31,6 +34,7 @@
         </div>
     </div>
 
+    <!-- 主聊天区域 -->
     <div class="main-chat">
         <div class="chat-container" id="chat-box">
             <div style="text-align:center; color:var(--text-secondary); margin-top:10vh;">
@@ -49,6 +53,7 @@
         </div>
     </div>
 
+    <!-- 角色/文件选择弹窗 -->
     <div id="role-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>🤖 选择助手</h3>
@@ -58,13 +63,16 @@
         </div>
     </div>
 
+    <!-- 全局设置弹窗 -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box settings-box">
+            <!-- 弹窗标题 -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="margin:0;">⚙️ 全局设置</h3>
                 <button class="btn-close" id="btn-close-settings" onclick="closeModal('settings-modal')" style="font-size:1.5em; line-height:1;">&times;</button>
             </div>
             
+            <!-- 1. API 设置块 -->
             <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid var(--border-color);">
                 <h4 style="margin:0 0 15px 0; color:#19c37d; border-bottom:1px dashed var(--border-color); padding-bottom:5px;">🔌 API 连接配置</h4>
                 
@@ -112,6 +120,7 @@
                 <button class="btn-primary" onclick="saveApiConfig()" id="btn-save-api">💾 保存并重连 API</button>
             </div>
 
+            <!-- 2. 外观与个性化设置块 (这里包含了修改头像、名字和字体、主题) -->
             <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; border:1px solid var(--border-color);">
                 <h4 style="margin:0 0 15px 0; color:#5865f2; border-bottom:1px dashed var(--border-color); padding-bottom:5px;">🎨 外观与个性化</h4>
                 
@@ -139,8 +148,10 @@
                 <div class="form-group">
                     <label>颜色主题</label>
                     <div style="display:flex; gap:10px;">
+                        <!-- 按钮触发 JS 中的 setTheme 方法 -->
                         <button class="btn-secondary" onclick="setTheme('dark')" id="theme-dark" style="flex:1;">🌙 暗色</button>
                         <button class="btn-secondary" onclick="setTheme('light')" id="theme-light" style="flex:1;">☀️ 亮色</button>
+                        <!-- 如果未来需要“跟随系统”，通常默认没有设置就是跟随系统，或者需要额外 JS 支持 -->
                     </div>
                 </div>
 
