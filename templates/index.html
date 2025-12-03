@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/static/css/style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
@@ -21,7 +20,7 @@
         </div>
         
         <div class="history-list" id="history-list">
-            <div style="padding:10px; opacity:0.6; font-size:0.9em;">加载历史中...</div>
+            <div style="padding:10px; opacity:0.6; font-size:0.9em;">加载中...</div>
         </div>
         
         <div class="sidebar-footer">
@@ -36,14 +35,14 @@
         <div class="chat-container" id="chat-box">
             <div style="text-align:center; color:var(--text-secondary); margin-top:10vh;">
                 <h2>My AI Assistant</h2>
-                <p>点击左侧“新对话”开始，或在设置中配置 API</p>
+                <p>点击左侧“新对话”开始</p>
             </div>
         </div>
 
         <div class="input-area">
             <div class="input-box">
-                <textarea id="inp" placeholder="发送消息... (Enter发送，Shift+Enter换行)" rows="1"></textarea>
-                <button class="btn-send" onclick="sendMsg()" title="发送">
+                <textarea id="inp" placeholder="发送消息... (Enter发送)" rows="1"></textarea>
+                <button class="btn-send" onclick="sendMsg()">
                     <svg class="icon" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
             </div>
@@ -53,75 +52,101 @@
     <div id="role-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>🤖 选择助手</h3>
-            <select id="role-sel"></select>
+            <select id="role-sel" class="styled-input"></select>
             <button class="btn-primary" onclick="startChat()">开始聊天</button>
             <button class="btn-close" onclick="closeModal('role-modal')">取消</button>
         </div>
     </div>
 
     <div id="settings-modal" class="modal-overlay">
-        <div class="modal-box" style="width: 500px; text-align: left; max-height: 90vh; overflow-y: auto;">
-            <h3 style="text-align: center;">⚙️ 设置</h3>
-            
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-                <div style="font-weight:bold; margin-bottom:10px; color:#19c37d; display:flex; align-items:center; gap:5px;">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
-                    API 连接配置
-                </div>
-                
-                <div class="setting-row">
-                    <label class="setting-label">API Key (密钥)</label>
-                    <input type="password" class="setting-input" id="cfg-key" placeholder="sk-...">
-                </div>
-                
-                <div class="setting-row">
-                    <label class="setting-label">Base URL (接口地址)</label>
-                    <input type="text" class="setting-input" id="cfg-url" placeholder="https://api.deepseek.com">
-                </div>
-                
-                <div class="setting-row">
-                    <label class="setting-label">模型名称</label>
-                    <input type="text" class="setting-input" id="cfg-model" placeholder="deepseek-chat">
-                </div>
-                
-                <button class="btn-primary" onclick="saveApiConfig()" id="btn-save-api">💾 保存并连接</button>
-            </div>
-
-            <div class="setting-row">
-                <label class="setting-label">用户昵称</label>
-                <input type="text" class="setting-input" id="input-username" placeholder="Me">
+        <div class="modal-box settings-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0;">⚙️ 全局设置</h3>
+                <button class="btn-close" id="btn-close-settings" onclick="closeModal('settings-modal')" style="font-size:1.5em; line-height:1;">&times;</button>
             </div>
             
-            <div class="setting-row" style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label class="setting-label">用户头像 (Emoji/URL)</label>
-                    <input type="text" class="setting-input" id="input-user-avatar" placeholder="😎">
+            <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid var(--border-color);">
+                <h4 style="margin:0 0 15px 0; color:#19c37d; border-bottom:1px dashed var(--border-color); padding-bottom:5px;">🔌 API 连接配置</h4>
+                
+                <div class="form-group">
+                    <label>API 地址</label>
+                    <input type="text" id="cfg-url" class="styled-input" placeholder="http://...">
                 </div>
-                <div style="flex: 1;">
-                    <label class="setting-label">助手头像 (Emoji/URL)</label>
-                    <input type="text" class="setting-input" id="input-ai-avatar" placeholder="🤖">
+
+                <div class="form-group">
+                    <label>API 密钥</label>
+                    <input type="password" id="cfg-key" class="styled-input" placeholder="sk-...">
                 </div>
+
+                <div class="form-group">
+                    <label>模型名称</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="cfg-model" class="styled-input" style="flex:1;" list="model-list" placeholder="gpt-3.5-turbo">
+                        <datalist id="model-list"></datalist>
+                        <button class="btn-secondary" onclick="fetchModels()" id="btn-fetch" style="white-space:nowrap;">🔄 获取</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between;">
+                        <label>温度 (随机性)</label>
+                        <span id="temp-val" style="color:#19c37d;">0.7</span>
+                    </div>
+                    <input type="range" id="cfg-temp" min="0" max="2" step="0.1" value="0.7" oninput="document.getElementById('temp-val').innerText=this.value">
+                </div>
+
+                <div style="display: flex; gap: 20px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>最大 Token</label>
+                        <input type="number" id="cfg-tokens" class="styled-input" value="2000">
+                    </div>
+                    <div class="form-group" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end;">
+                        <label>流式传输</label>
+                        <label class="switch">
+                            <input type="checkbox" id="cfg-stream" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" onclick="saveApiConfig()" id="btn-save-api">💾 保存并重连 API</button>
             </div>
 
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
-
-            <div class="setting-row">
-                <label class="setting-label">字体大小: <span id="font-val">16</span>px</label>
-                <input type="range" min="12" max="24" value="16" id="font-range" oninput="updateFont(this.value)">
-            </div>
-            
-            <div class="setting-row">
-                <label class="setting-label">颜色主题</label>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-primary" onclick="setTheme('dark')" style="flex:1; background:#444;">暗色</button>
-                    <button class="btn-primary" onclick="setTheme('light')" style="flex:1; background:#eee; color:#333;">亮色</button>
+            <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:8px; border:1px solid var(--border-color);">
+                <h4 style="margin:0 0 15px 0; color:#5865f2; border-bottom:1px dashed var(--border-color); padding-bottom:5px;">🎨 外观与个性化</h4>
+                
+                <div class="form-group">
+                    <label>用户昵称</label>
+                    <input type="text" class="styled-input" id="input-username" placeholder="Me">
                 </div>
+
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label>用户头像 (Emoji/URL)</label>
+                        <input type="text" class="styled-input" id="input-user-avatar" placeholder="😎">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>助手头像 (Emoji/URL)</label>
+                        <input type="text" class="styled-input" id="input-ai-avatar" placeholder="🤖">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>字体大小: <span id="font-val">16</span>px</label>
+                    <input type="range" min="12" max="24" value="16" id="font-range" oninput="updateFont(this.value)">
+                </div>
+                
+                <div class="form-group">
+                    <label>颜色主题</label>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-secondary" onclick="setTheme('dark')" id="theme-dark" style="flex:1;">🌙 暗色</button>
+                        <button class="btn-secondary" onclick="setTheme('light')" id="theme-light" style="flex:1;">☀️ 亮色</button>
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="saveCustomization()" style="width:100%;">✅ 应用外观设置</button>
             </div>
 
-            <div style="margin-top: 20px; text-align: center;">
-                <button class="btn-primary" onclick="saveCustomization()">保存外观设置</button>
-                <button class="btn-close" id="btn-close-settings" onclick="closeModal('settings-modal')">关闭</button>
-            </div>
         </div>
     </div>
 

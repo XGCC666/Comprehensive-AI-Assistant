@@ -9,7 +9,6 @@ from src.ai_engine import AIEngine
 from src.history_manager import HistoryManager
 import json
 
-# 资源路径修正（适配 PyInstaller 打包）
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -24,8 +23,6 @@ app = Flask(__name__,
 history_mgr = HistoryManager()
 CURRENT_CHAT_ID = None
 CURRENT_CHAT_DATA = None
-
-# 全局变量：AI 引擎
 engine = None
 
 def init_engine():
@@ -34,73 +31,92 @@ def init_engine():
     cfg = load_config()
     if cfg["api_key"] and cfg["base_url"]:
         try:
-            engine = AIEngine(cfg["api_key"], cfg["base_url"], cfg["model"])
-            print("✅ AI 引擎初始化成功")
+            # 传入所有新参数
+            engine = AIEngine(
+                api_key=cfg["api_key"], 
+                base_url=cfg["base_url"], 
+                model_name=cfg["model"],
+                temperature=cfg["temperature"],
+                max_tokens=cfg["max_tokens"],
+                stream=cfg["stream"]
+            )
+            print(f"✅ AI 引擎就绪: Temp={cfg['temperature']}, Stream={cfg['stream']}")
             return True
         except Exception as e:
             print(f"❌ 初始化失败: {e}")
             return False
     return False
 
-# 启动时先尝试初始化一次
 init_engine()
-
-# ================= 路由 =================
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# 1. 检查配置接口
 @app.route('/api/check_config')
 def check_config():
-    """告诉前端当前是否已经配置好了"""
-    global engine
     is_configured = (engine is not None)
-    # 同时返回当前的配置信息（方便显示在输入框里）
     cfg = load_config()
     return jsonify({
         "configured": is_configured,
         "api_key": cfg["api_key"],
         "base_url": cfg["base_url"],
-        "model": cfg["model"]
+        "model": cfg["model"],
+        "temperature": cfg["temperature"],
+        "max_tokens": cfg["max_tokens"],
+        "stream": cfg["stream"]
     })
 
-# 2. 保存配置接口
 @app.route('/api/save_config', methods=['POST'])
 def save_config():
-    """接收前端传来的 Key，写入 .env，并重启引擎"""
     data = request.json
     api_key = data.get('api_key', '').strip()
     base_url = data.get('base_url', '').strip()
     model = data.get('model', '').strip()
+    temperature = str(data.get('temperature', 0.7))
+    max_tokens = str(data.get('max_tokens', 2000))
+    stream = str(data.get('stream', True))
 
     if not api_key or not base_url:
         return jsonify({"status": "error", "message": "Key 或 URL 不能为空"}), 400
 
-    # 写入本地 .env 文件
-    env_content = f"MY_API_KEY={api_key}\nMY_API_URL={base_url}\nMY_MODEL_NAME={model}\n"
+    env_content = (
+        f"MY_API_KEY={api_key}\n"
+        f"MY_API_URL={base_url}\n"
+        f"MY_MODEL_NAME={model}\n"
+        f"MY_TEMPERATURE={temperature}\n"
+        f"MY_MAX_TOKENS={max_tokens}\n"
+        f"MY_STREAM={stream}\n"
+    )
+    
     try:
         with open('.env', 'w', encoding='utf-8') as f:
             f.write(env_content)
     except Exception as e:
-        return jsonify({"status": "error", "message": f"写入文件失败: {e}"}), 500
+        return jsonify({"status": "error", "message": f"写入失败: {e}"}), 500
 
-    # 重新加载引擎
     if init_engine():
         return jsonify({"status": "success"})
     else:
-        return jsonify({"status": "error", "message": "配置保存了，但连接 AI 失败，请检查 Key 是否正确"}), 400
+        return jsonify({"status": "error", "message": "保存成功但连接失败"}), 400
 
-# ... (以下原有的 prompts, history, new_chat 等接口保持不变，请复制之前的代码) ...
+@app.route('/api/fetch_models', methods=['POST'])
+def fetch_models_api():
+    data = request.json
+    try:
+        models = AIEngine.fetch_available_models(data.get('api_key'), data.get('base_url'))
+        return jsonify({"status": "success", "models": models})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# ... (保持原有的 prompts, history, new_chat, load_chat, delete_chat, rename_chat 接口不变) ...
+# 请务必保留这些接口代码，为了篇幅我折叠了，它们和上一次完全一样
 
 @app.route('/api/prompts')
-def get_prompts():
-    return jsonify(get_prompt_list())
+def get_prompts(): return jsonify(get_prompt_list())
 
 @app.route('/api/history')
-def get_history():
-    return jsonify(history_mgr.list_all_chats())
+def get_history(): return jsonify(history_mgr.list_all_chats())
 
 @app.route('/api/new_chat', methods=['POST'])
 def new_chat():
@@ -149,8 +165,9 @@ def rename_chat():
 @app.route('/api/chat_stream')
 def chat_stream():
     global CURRENT_CHAT_DATA
-    if not engine: # 关键检查：如果没有配置 Key，直接报错
-        return Response("data: " + json.dumps({"text": "❌ 请先在设置中配置 API Key！"}, ensure_ascii=False) + "\n\n", mimetype='text/event-stream')
+    if not engine:
+        err = json.dumps({"text": "❌ 请先在设置中配置 API Key"}, ensure_ascii=False)
+        return Response(f"data: {err}\n\n", mimetype='text/event-stream')
         
     user_input = request.args.get('message')
     if not CURRENT_CHAT_DATA: return Response("Error", status=400)
@@ -160,14 +177,24 @@ def chat_stream():
     def generate():
         full_response = ""
         try:
-            stream = engine.chat_stream(CURRENT_CHAT_DATA["messages"])
-            for chunk in stream:
-                if chunk.choices[0].delta.content:
-                    content = chunk.choices[0].delta.content
-                    full_response += content
-                    json_data = json.dumps({"text": content}, ensure_ascii=False)
-                    yield f"data: {json_data}\n\n"
+            # 这里的 engine 已经包含了 temperature 等参数
+            response = engine.chat_stream(CURRENT_CHAT_DATA["messages"])
             
+            # 判断是否开启流式
+            if engine.stream:
+                for chunk in response:
+                    if chunk.choices[0].delta.content:
+                        content = chunk.choices[0].delta.content
+                        full_response += content
+                        json_data = json.dumps({"text": content}, ensure_ascii=False)
+                        yield f"data: {json_data}\n\n"
+            else:
+                # 非流式，一次性返回
+                content = response.choices[0].message.content
+                full_response = content
+                json_data = json.dumps({"text": content}, ensure_ascii=False)
+                yield f"data: {json_data}\n\n"
+
             CURRENT_CHAT_DATA["messages"].append({"role": "assistant", "content": full_response})
             history_mgr.save_chat(CURRENT_CHAT_ID, CURRENT_CHAT_DATA)
             
@@ -177,7 +204,7 @@ def chat_stream():
                     history_mgr.update_title(CURRENT_CHAT_ID, new_title)
                  except: pass
         except Exception as e:
-            err_msg = json.dumps({"text": f"\n❌ API 调用失败: {str(e)}"}, ensure_ascii=False)
+            err_msg = json.dumps({"text": f"\n❌ 出错: {str(e)}"}, ensure_ascii=False)
             yield f"data: {err_msg}\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
