@@ -1,0 +1,227 @@
+/* ============ 核心变量 ============ */
+:root {
+    --bg-color: #343541;
+    --sidebar-bg: #202123;
+    --input-bg: #40414f;
+    --text-color: #ececf1;
+    --text-secondary: #aaa;
+    --hover-bg: #2a2b32;
+    --border-color: #4d4d4f;
+    --user-msg-bg: #343541;
+    --ai-msg-bg: #444654;
+    --base-size: 16px;
+    
+    /* 所有的代码块，默认都用深色，防止看不清 */
+    --code-bg: #0d1117; 
+    --code-text: #c9d1d9;
+    --inline-code-bg: rgba(255,255,255,0.1);
+    --inline-code-color: #ececf1;
+}
+
+[data-theme="light"] {
+    --bg-color: #ffffff;
+    --sidebar-bg: #f7f7f8;
+    --input-bg: #ffffff;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --hover-bg: #e0e0e0;
+    --border-color: #d9d9e3;
+    --user-msg-bg: #ffffff;
+    --ai-msg-bg: #f7f7f8;
+    
+    /* 亮色模式下，行内代码用浅灰底+红字，醒目 */
+    --inline-code-bg: #f6f8fa;
+    --inline-code-color: #d12f7b;
+    /* 注意：大代码块(pre)依然保持深色，不跟随变白，确保 highlight.js 可见 */
+}
+
+/* ============ 基础重置 ============ */
+* { box-sizing: border-box; }
+body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color); color: var(--text-color);
+    display: flex; height: 100vh; overflow: hidden;
+    font-size: var(--base-size); transition: background-color 0.3s, color 0.3s;
+}
+
+/* ============ 通用组件 ============ */
+.icon { width: 1.2em; height: 1.2em; fill: currentColor; flex-shrink: 0; }
+
+/* ============ 侧边栏 ============ */
+.sidebar {
+    width: 260px; background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column; padding: 10px; flex-shrink: 0;
+    transition: background-color 0.3s;
+}
+.btn-new {
+    border: 1px solid var(--border-color); padding: 12px;
+    border-radius: 5px; cursor: pointer; color: var(--text-color);
+    background: transparent; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px; transition: 0.2s;
+}
+.btn-new:hover { background-color: var(--hover-bg); }
+
+.history-list { flex: 1; overflow-y: auto; }
+
+.history-item {
+    padding: 10px 12px; cursor: pointer; color: var(--text-secondary);
+    border-radius: 5px; display: flex; align-items: center; gap: 8px;
+    justify-content: space-between; group: relative;
+}
+.history-item:hover { background-color: var(--hover-bg); color: var(--text-color); }
+
+.chat-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 按钮组容器 */
+.action-btns {
+    display: flex; gap: 5px; opacity: 0; transition: 0.2s;
+}
+.history-item:hover .action-btns { opacity: 1; }
+
+/* 通用图标按钮样式 */
+.btn-icon {
+    padding: 4px; border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+}
+.btn-icon:hover { background-color: rgba(255,255,255,0.1); color: var(--text-color); }
+
+/* 特殊颜色 */
+.btn-edit:hover { color: #4b9eff; } /* 编辑变蓝 */
+.btn-delete:hover { color: #ff4b4b; } /* 删除变红 */
+
+.sidebar-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color); }
+.footer-item {
+    padding: 12px; color: var(--text-secondary); cursor: pointer;
+    border-radius: 5px; display: flex; align-items: center; gap: 10px;
+}
+.footer-item:hover { background-color: var(--hover-bg); color: var(--text-color); }
+
+/* ============ 主窗口 ============ */
+.main-chat {
+    flex: 1; display: flex; flex-direction: column;
+    position: relative; background-color: var(--bg-color);
+}
+.chat-container {
+    flex: 1; overflow-y: auto; padding: 20px;
+    padding-bottom: 120px; scroll-behavior: smooth;
+}
+.message { padding: 24px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.message.user { background-color: var(--user-msg-bg); }
+.message.assistant { background-color: var(--ai-msg-bg); }
+
+.msg-content { display: flex; gap: 20px; max-width: 800px; margin: 0 auto; }
+
+.avatar { 
+    width: 36px; height: 36px; border-radius: 4px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 1.2em; overflow: hidden; background-color: #ccc;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user .avatar { background: #5436da; color: white; }
+.assistant .avatar { background: #19c37d; color: white; }
+
+.text-area { flex: 1; overflow-x: hidden; color: var(--text-color); }
+.sender-name { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; opacity: 0.8; }
+
+/* ============ Markdown 样式修复 (重点修复看不清的问题) ============ */
+.markdown-body { 
+    line-height: 1.7; font-size: 1em; color: var(--text-color); 
+}
+
+/* 1. 大代码块 (Pre)：强制保持深色背景，不受亮色模式影响 */
+.markdown-body pre { 
+    background: #0d1117 !important; /* 永远深色 */
+    color: #c9d1d9 !important;      /* 永远浅字 */
+    padding: 15px; border-radius: 8px; overflow-x: auto; 
+    border: 1px solid rgba(128,128,128,0.2);
+    margin: 10px 0;
+}
+
+/* 2. 行内代码 (Code)：根据模式变化，亮色模式下变红，深色模式下变白 */
+.markdown-body :not(pre) > code { 
+    font-family: Consolas, monospace; 
+    background: var(--inline-code-bg); 
+    color: var(--inline-code-color);
+    padding: 2px 5px; border-radius: 3px; 
+    border: 1px solid rgba(128,128,128,0.1);
+}
+
+/* ============ Markdown 样式修复 ============ */
+.markdown-body { 
+    line-height: 1.7; font-size: 1em; color: var(--text-color); 
+}
+
+/* 1. 大代码块 (Pre) */
+.markdown-body pre { 
+    background: #0d1117 !important; /* 背景保持深色 */
+    /* color: #c9d1d9 !important; <--- 【删除这行！】不要强制文字颜色，否则高亮颜色出不来 */
+    padding: 15px; border-radius: 8px; overflow-x: auto; 
+    border: 1px solid rgba(128,128,128,0.2);
+    margin: 10px 0;
+}
+
+/* 2. 行内代码 (Code) - 这个保持不变 */
+.markdown-body :not(pre) > code { 
+    font-family: Consolas, monospace; 
+    background: var(--inline-code-bg); 
+    color: var(--inline-code-color);
+    padding: 2px 5px; border-radius: 3px; 
+    border: 1px solid rgba(128,128,128,0.1);
+}
+
+/* ============ 输入框 ============ */
+.input-area {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 30px; background: linear-gradient(180deg, transparent, var(--bg-color) 20%);
+    display: flex; justify-content: center;
+}
+.input-box {
+    width: 100%; max-width: 800px; background: var(--input-bg);
+    border-radius: 12px; display: flex; align-items: center;
+    padding: 10px 16px; box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+textarea {
+    flex: 1; background: transparent; border: none; color: var(--text-color);
+    resize: none; height: 24px; outline: none; font-size: inherit; font-family: inherit;
+}
+.btn-send {
+    background: transparent; border: none; color: var(--text-secondary);
+    cursor: pointer; padding: 5px; display: flex; align-items: center;
+}
+.btn-send:hover { color: var(--text-color); }
+
+/* ============ 弹窗 ============ */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.modal-box {
+    background: var(--bg-color); padding: 30px; border-radius: 12px;
+    width: 450px; text-align: center; color: var(--text-color);
+    border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+[data-theme="light"] .modal-box { background: #fff; }
+
+.setting-row { text-align: left; margin-bottom: 15px; }
+.setting-label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+.setting-input { 
+    width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);
+    background: var(--input-bg); color: var(--text-color); 
+}
+
+select, input[type="range"] { 
+    width: 100%; margin: 5px 0; padding: 8px; border-radius: 6px;
+    background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color);
+}
+.btn-primary { 
+    background: #19c37d; color: white; border: none; padding: 10px 24px; 
+    border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold;
+}
+.btn-close {
+    background: transparent; border: none; margin-top: 10px;
+    color: var(--text-secondary); cursor: pointer; text-decoration: underline;
+}

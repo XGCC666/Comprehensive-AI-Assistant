@@ -75,3 +75,15 @@ class HistoryManager:
         if data:
             data["title"] = new_title
             self.save_chat(chat_id, data)
+# ========== 【新增】删除对话的方法 ==========
+    def delete_chat(self, chat_id):
+        """删除指定的对话文件"""
+        filepath = os.path.join(HISTORY_DIR, f"{chat_id}.json")
+        if os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+                return True
+            except Exception as e:
+                print(f"删除失败: {e}")
+                return False
+        return False
