@@ -54,7 +54,7 @@ python main.py
 # Context
 ...
 ```
-
+或者使用prompt architect生成后复制到`.md` 文件中
 程序会自动扫描并加载这个新角色。
 
 ## 🛠️ 项目结构
