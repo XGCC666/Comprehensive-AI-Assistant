@@ -28,6 +28,7 @@ engine = None
 def init_engine():
     global engine
     cfg = load_config()
+    # 只有当 key 和 url 都存在时才尝试初始化
     if cfg["api_key"] and cfg["base_url"]:
         try:
             engine = AIEngine(
@@ -43,6 +44,8 @@ def init_engine():
         except Exception as e:
             print(f"❌ 初始化失败: {e}")
             return False
+    # 如果配置不完整，将 engine 设为 None
+    engine = None
     return False
 
 init_engine()
@@ -52,8 +55,7 @@ DEFAULT_THEME_IDS = ["dark", "light", "ocean", "forest", "coffee", "cyber"]
 THEME_FILE = "themes.json"
 
 if not os.path.exists(THEME_FILE):
-    # 如果没有 themes.json，app.py 启动时不会自动创建，依靠前端 fetchThemes 失败时的兜底
-    # 或者你可以手动在这里加一段写入默认主题的代码
+    # 可以在这里增加创建默认 themes.json 的逻辑，确保应用首次运行时有主题
     pass 
 
 # ================= 路由接口 =================
@@ -130,7 +132,7 @@ def delete_theme():
 @app.route('/api/chat/update_settings', methods=['POST'])
 def update_chat_settings():
     global CURRENT_CHAT_DATA
-    if not CURRENT_CHAT_DATA: return jsonify({"error": "No chat"}), 400
+    if not CURRENT_CHAT_DATA: return jsonify({"status": "error", "error": "当前未加载任何对话"}), 400
     
     data = request.json
     new_model = data.get('model')
@@ -179,14 +181,21 @@ def save_config():
     try:
         with open('.env', 'w', encoding='utf-8') as f: f.write(env_content)
     except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
+    
+    # 重新初始化引擎，如果成功返回 success，否则返回 error
     if init_engine(): return jsonify({"status": "success"})
-    else: return jsonify({"status": "error", "message": "连接失败"}), 400
+    else: return jsonify({"status": "error", "message": "API Key 或 URL 无效，请检查配置"}), 400
 
 @app.route('/api/fetch_models', methods=['POST'])
 def fetch_models_api():
     data = request.json
     try:
-        models = AIEngine.fetch_available_models(data.get('api_key'), data.get('base_url'))
+        # 确保 engine 存在，否则使用 AIEngine 的静态方法
+        if engine:
+            models = engine.fetch_available_models(data.get('api_key'), data.get('base_url'))
+        else:
+            models = AIEngine.fetch_available_models(data.get('api_key'), data.get('base_url'))
+            
         return jsonify({"status": "success", "models": models})
     except Exception as e: return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -201,14 +210,22 @@ def new_chat():
     global CURRENT_CHAT_ID, CURRENT_CHAT_DATA
     data = request.json
     filename = data.get('filename')
+    
+    # 加载角色设定
     system_content, greeting = load_prompt_by_filename(filename)
+    if not system_content: return jsonify({"error": "角色文件加载失败"}), 500
+
+    # 在内存中创建新对话数据
     chat_id, chat_data = history_mgr.create_new_chat(filename, system_content, greeting)
     
+    # 继承当前全局模型设置
     cfg = load_config()
     chat_data['model'] = cfg['model']
     
     CURRENT_CHAT_ID = chat_id
     CURRENT_CHAT_DATA = chat_data
+    
+    # 注意：这里不立即存盘，存盘发生在用户发送第一条消息之后 (在 chat_stream 路由中)
     return jsonify({"greeting": greeting, "chat_id": chat_id, "messages": chat_data['messages'], "model": chat_data['model']})
 
 @app.route('/api/load_chat', methods=['POST'])
@@ -224,9 +241,13 @@ def load_chat():
 
 @app.route('/api/delete_chat', methods=['POST'])
 def delete_chat():
-    if history_mgr.delete_chat(request.json.get('chat_id')):
-        global CURRENT_CHAT_ID
-        if CURRENT_CHAT_ID == request.json.get('chat_id'): CURRENT_CHAT_ID = None
+    chat_id_to_delete = request.json.get('chat_id')
+    if history_mgr.delete_chat(chat_id_to_delete):
+        global CURRENT_CHAT_ID, CURRENT_CHAT_DATA
+        # 如果删除的是当前正在聊天的对话，清空内存中的当前状态
+        if CURRENT_CHAT_ID == chat_id_to_delete: 
+            CURRENT_CHAT_ID = None
+            CURRENT_CHAT_DATA = None
         return jsonify({"status": "success"})
     return jsonify({"status": "error"}), 404
 
@@ -239,44 +260,65 @@ def rename_chat():
 @app.route('/api/chat_stream')
 def chat_stream():
     global CURRENT_CHAT_DATA
-    if not engine: return Response(f"data: {json.dumps({'text': '❌ 请配置 Key'}, ensure_ascii=False)}\n\n", mimetype='text/event-stream')
-    if not CURRENT_CHAT_DATA: return Response("Error", status=400)
+    if not engine: 
+        return Response(f"data: {json.dumps({'text': '❌ AI 引擎未配置或连接失败。请检查设置。'}, ensure_ascii=False)}\n\n", mimetype='text/event-stream')
+    if not CURRENT_CHAT_DATA: 
+        return Response(f"data: {json.dumps({'text': '❌ 当前未加载任何对话。请开启新对话。'}, ensure_ascii=False)}\n\n", status=400, mimetype='text/event-stream')
     
     user_input = request.args.get('message')
     CURRENT_CHAT_DATA["messages"].append({"role": "user", "content": user_input})
 
+    # 获取当前对话的模型，用于覆盖默认模型
     chat_model = CURRENT_CHAT_DATA.get('model')
 
     def generate():
         full_response = ""
         try:
+            # 1. 调用 AI 引擎获取流式响应
             response = engine.chat_stream(CURRENT_CHAT_DATA["messages"], model_override=chat_model)
+            
             if engine.stream:
                 for chunk in response:
-                    if chunk.choices[0].delta.content:
-                        content = chunk.choices[0].delta.content
+                    content = chunk.choices[0].delta.content
+                    if content:
                         full_response += content
+                        # 2. 实时传输数据
                         yield f"data: {json.dumps({'text': content}, ensure_ascii=False)}\n\n"
             else:
+                # 非流式模式
                 content = response.choices[0].message.content or ""
                 full_response = content
                 yield f"data: {json.dumps({'text': content}, ensure_ascii=False)}\n\n"
 
+            # 3. AI 响应结束后，保存历史
             CURRENT_CHAT_DATA["messages"].append({"role": "assistant", "content": full_response})
             history_mgr.save_chat(CURRENT_CHAT_ID, CURRENT_CHAT_DATA)
             
-            if len(CURRENT_CHAT_DATA["messages"]) == 3:
+            # 4. 修复：自动生成标题的逻辑 (仅在第一轮对话后触发，即消息数为 3)
+            if len(CURRENT_CHAT_DATA["messages"]) == 3 and CURRENT_CHAT_DATA["title"] == "新对话":
                  try:
                     new_title = engine.generate_title(user_input, full_response)
+                    # 同时更新磁盘和内存中的标题
                     history_mgr.update_title(CURRENT_CHAT_ID, new_title)
-                 except: pass
+                    CURRENT_CHAT_DATA["title"] = new_title 
+                    print(f"✨ 自动命名成功: {new_title}")
+                 except Exception as e:
+                    # 打印错误，但不中断流程
+                    print(f"❌ 自动生成标题失败: {e}", file=sys.stderr)
+                    pass 
+
         except Exception as e:
-            yield f"data: {json.dumps({'text': f'❌ Error: {str(e)}'}, ensure_ascii=False)}\n\n"
+            # 5. 传输错误信息
+            error_message = f"❌ API请求失败: {str(e)}"
+            print(error_message, file=sys.stderr)
+            yield f"data: {json.dumps({'text': error_message}, ensure_ascii=False)}\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
 
 def open_browser(): webbrowser.open_new("http://127.0.0.1:5000")
 
 if __name__ == '__main__':
+    # 确保在启动前初始化 engine，以便在命令行输出状态
+    init_engine() 
     Timer(1.5, open_browser).start()
     app.run(debug=False, port=5000)

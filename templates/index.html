@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My AI Assistant</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
@@ -54,6 +56,7 @@
                     <h2>My AI Assistant</h2><p>点击左上角“+”开启新对话</p>
                 </div>
             </div>
+            
             <div class="input-area">
                 <div class="input-box">
                     <textarea id="inp" placeholder="发送消息... (Enter发送)" rows="1"></textarea>
@@ -68,7 +71,7 @@
             <h3>✨ 创建新助手</h3>
             <div class="form-group"><label>助手名称</label><input type="text" id="new-prompt-name" class="styled-input" placeholder="例如：翻译官"></div>
             <div class="form-group"><label>开场白</label><input type="text" id="new-prompt-greeting" class="styled-input" placeholder="你好，我是..."></div>
-            <div class="form-group"><label>角色设定</label><textarea id="new-prompt-content" class="styled-input" rows="6" placeholder="你是一个..."></textarea></div>
+            <div class="form-group"><label>角色设定</label><textarea id="new-prompt-content" class="styled-input" rows="10" placeholder="你是一个..."></textarea></div>
             <button class="btn-primary" onclick="createPrompt()">创建并保存</button>
             <button class="btn-close" onclick="closeModal('create-prompt-modal')">取消</button>
         </div>

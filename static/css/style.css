@@ -89,12 +89,53 @@ body {
     border-radius: 6px; 
     border: 1px solid transparent;
     transition: all 0.2s;
+    /* --- 新增：确保删除/编辑按钮可见 --- */
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
 }
 .history-item:hover { 
     background-color: var(--hover-bg); 
     border-color: var(--border-color);
     transform: translateX(3px);
 }
+
+.chat-title {
+    flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer; /* 确保点击标题区域也能触发 loadOld */
+}
+.action-btns {
+    display: flex;
+    flex-shrink: 0; 
+    gap: 5px;
+    margin-left: 10px;
+    opacity: 0; /* 默认隐藏按钮 */
+    transition: opacity 0.2s;
+}
+.history-item:hover .action-btns {
+    opacity: 1; /* 鼠标悬停时显示按钮 */
+}
+.btn-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: var(--sidebar-bg);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    font-size: 14px;
+}
+.btn-icon:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+.btn-delete { color: #ff4b4b; } 
 
 /* 3. 主聊天区域 (Main Chat) */
 .main-chat {
@@ -107,7 +148,13 @@ body {
 /* 消息气泡美化 (更有Galgame/SillyTavern感) */
 .message { padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
 .message.assistant { background-color: rgba(0,0,0,0.1); } /* 稍微加深AI背景 */
-.msg-content { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+.msg-content { 
+    max-width: 900px; 
+    margin: 0 auto; 
+    padding: 0 20px; 
+    display: flex; /* 新增：启用 flex 布局来排列 avatar 和 text-area */
+    align-items: flex-start;
+}
 
 /* 其他组件保持原样，以下引用你之前的 CSS */
 .avatar { width: 36px; height: 36px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2em; overflow: hidden; background-color: #ccc; margin-right: 15px; }
@@ -126,7 +173,17 @@ textarea { flex: 1; background: transparent; border: none; color: var(--text-col
 
 /* 弹窗样式 */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; }
-.modal-box { background: var(--panel-bg); width: 550px; max-height: 85vh; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: var(--text-color); border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+.modal-box { 
+    background: var(--panel-bg); 
+    width: 650px; /* 修改点：扩大宽度 */
+    max-height: 85vh; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+    color: var(--text-color); 
+    border: 1px solid var(--border-color); 
+    display: flex; 
+    flex-direction: column; 
+}
 .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 .modal-content-scroll { padding: 20px; overflow-y: auto; flex-grow: 1; }
 .form-group { margin-bottom: 20px; }
