@@ -8,12 +8,14 @@ class AIEngine:
         self.max_tokens = int(max_tokens)
         self.stream = stream
 
-    def chat_stream(self, messages_history):
-        """发送完整的对话历史 (流式)"""
+    def chat_stream(self, messages_history, model_override=None):
+        """发送完整的对话历史 (流式)，支持模型覆盖"""
         try:
-            # 这里的参数现在是动态的了
+            # 如果有指定模型，就用指定的，否则用默认的
+            target_model = model_override if model_override else self.model
+            
             response = self.client.chat.completions.create(
-                model=self.model,
+                model=target_model,
                 messages=messages_history,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
